@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: finai-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: finai
+      POSTGRES_USER: finai_user
+      POSTGRES_PASSWORD: finai_secret_2024
+    ports:
+      - '5433:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U finai_user -d finai']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: finai-redis
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: finai-backend
+    restart: unless-stopped
+    ports:
+      - '3001:3001'
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DATABASE_URL: postgresql://finai_user:finai_secret_2024@postgres:5432/finai
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: finai-jwt-secret-change-in-production
+      JWT_REFRESH_SECRET: finai-jwt-refresh-secret-change-in-production
+      FRONTEND_URL: http://localhost
+      SMTP_HOST: ''
+      SMTP_USER: ''
+      SMTP_PASS: ''
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: finai-frontend
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    depends_on:
+      - backend
+
+  nginx:
+    image: nginx:alpine
+    container_name: finai-nginx
+    restart: unless-stopped
+    ports:
+      - '80:80'
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - backend
+      - frontend
+
+volumes:
+  postgres_data:
+  redis_data:

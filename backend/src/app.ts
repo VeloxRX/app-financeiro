@@ -20,13 +20,15 @@ const app = express();
 const httpServer = createServer(app);
 
 // Middleware
-app.use(helmet());
 app.use(cors({
   origin: 'https://app-financeiro-green.vercel.app',
   credentials: true
 }));
-app.use(express.json({ limit: '10mb' }));
-app.use(generalLimiter);
+app.options('*', cors({
+  origin: 'https://app-financeiro-green.vercel.app',
+  credentials: true
+}));
+app.use(helmet());
 
 // Health check
 app.get('/api/health', (_req, res) => {

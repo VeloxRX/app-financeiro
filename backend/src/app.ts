@@ -22,11 +22,11 @@ const httpServer = createServer(app);
 app.set('trust proxy', 1);
 
 app.use(cors({
-  origin: 'https://app-financeiro-green.vercel.app',
+  origin: ['https://www.meucacife.online', 'https://app-financeiro-green.vercel.app'],
   credentials: true
 }));
 app.options('*', cors({
-  origin: 'https://app-financeiro-green.vercel.app',
+  origin: ['https://www.meucacife.online', 'https://app-financeiro-green.vercel.app'],
   credentials: true
 }));
 app.use(helmet());

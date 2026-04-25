@@ -21,7 +21,6 @@ const httpServer = createServer(app);
 
 app.set('trust proxy', 1);
 
-// Middleware
 app.use(cors({
   origin: 'https://app-financeiro-green.vercel.app',
   credentials: true
@@ -31,6 +30,8 @@ app.options('*', cors({
   credentials: true
 }));
 app.use(helmet());
+app.use(express.json({ limit: '10mb' })); // ← deve vir ANTES do generalLimiter
+app.use(generalLimiter);
 
 // Health check
 app.get('/api/health', (_req, res) => {

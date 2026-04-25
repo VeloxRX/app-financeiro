@@ -21,7 +21,10 @@ const httpServer = createServer(app);
 
 // Middleware
 app.use(helmet());
-app.use(cors({ origin: env.FRONTEND_URL, credentials: true }));
+app.use(cors({
+  origin: 'https://app-financeiro-green.vercel.app',
+  credentials: true
+}));
 app.use(express.json({ limit: '10mb' }));
 app.use(generalLimiter);
 

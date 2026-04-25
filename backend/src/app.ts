@@ -19,6 +19,8 @@ import reportsRoutes from './modules/reports/reports.routes';
 const app = express();
 const httpServer = createServer(app);
 
+app.set('trust proxy', 1);
+
 // Middleware
 app.use(cors({
   origin: 'https://app-financeiro-green.vercel.app',
